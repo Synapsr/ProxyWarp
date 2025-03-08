@@ -1,6 +1,6 @@
 # ProxyWarp 🌀
 
-> A transparent web proxy that warps any website to your domain using Base64-encoded subdomains.
+> A transparent web proxy that brings any website to your domain using simple token subdomains.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)](https://nodejs.org/)
@@ -11,20 +11,19 @@
 - 🧩 **Framework Agnostic**: Works with Next.js, Nuxt.js, React, and all modern web technologies
 - 🛡️ **Security Bypass**: Circumvents CORS, X-Frame-Options, and Content Security Policy restrictions
 - 📦 **Simple Integration**: Embed any website in your application with a single iframe
-- 🔐 **Clean URL Structure**: Uses Base64-encoded subdomains for a seamless experience
+- 🔑 **Short Token System**: Uses short, memorable tokens instead of complex encodings
+- 🔀 **Smart Redirection**: Direct URL redirection using the `?url=` parameter
 - 🚀 **Production-Ready**: Optimized for performance and scalability with minimal memory footprint
 
 ## 🔮 How It Works
 
-ProxyWarp uses an elegant approach to proxy websites:
+ProxyWarp uses a smart token system to create clean, usable proxy URLs:
 
-1. It encodes the target domain in Base64 (e.g., `example.com` → `ZXhhbXBsZS5jb20=`)
-2. This encoded string becomes a subdomain of your proxy domain (e.g., `ZXhhbXBsZS5jb20=.proxywarp.com`)
-3. When a request hits this subdomain, ProxyWarp decodes it and forwards the request to the original site
+1. When you request a website, ProxyWarp generates a short token (e.g., `abc123`) for the domain
+2. This token becomes a subdomain (e.g., `abc123.proxywarp.com`)
+3. All requests to this subdomain are transparently proxied to the original site
 4. Security headers that would prevent embedding are carefully removed
 5. All resources (JS, CSS, images) are seamlessly proxied through the same system
-
-
 
 ## 🚀 Quick Start
 
@@ -58,6 +57,7 @@ ProxyWarp is easily configured using environment variables:
 | `PORT` | Server port | `3000` |
 | `BASE_DOMAIN` | Your base domain for the proxy | `proxywarp.com` |
 | `DEBUG` | Enable detailed logging | `false` |
+| `DB_FILE` | Path to token database file | `./data/tokens.json` |
 
 ## 📡 DNS Configuration
 
@@ -73,34 +73,29 @@ For production use, set up your DNS with:
    *.proxywarp.com  →  [YOUR_SERVER_IP]
    ```
 
-## 🎯 Usage Examples
+## 🎯 Usage - 3 Easy Ways
 
-### Basic Access
+### Method 1: Direct URL (NEW!)
 
-To visit any website through the proxy:
-
-```
-https://[BASE64_ENCODED_DOMAIN].proxywarp.com
-```
-
-For example, to access `github.com`:
+Simply add your target URL as a query parameter to the homepage:
 
 ```
-https://Z2l0aHViLmNvbQ==.proxywarp.com
+https://proxywarp.com/?url=https://example.com/path
 ```
 
-### Embedding in HTML
+This will automatically redirect you to the appropriate token-based URL, creating a new token if needed.
 
-```html
-<iframe 
-  src="https://Z2l0aHViLmNvbQ==.proxywarp.com" 
-  width="100%" 
-  height="600px"
-  style="border: none;"
-></iframe>
+### Method 2: Token Subdomain
+
+Use a token subdomain directly:
+
+```
+https://abc123.proxywarp.com/path
 ```
 
-### Using the Conversion API
+Where `abc123` is the token that maps to your desired website.
+
+### Method 3: API Conversion
 
 Convert URLs programmatically:
 
@@ -109,25 +104,59 @@ Convert URLs programmatically:
 fetch('https://proxywarp.com/convert?url=https://example.com')
   .then(response => response.json())
   .then(data => {
-    console.log(data.proxy); // The proxied URL to use
+    console.log(data.token);  // The generated token
+    console.log(data.proxy);  // The full proxy URL
   });
 ```
 
+## 🔄 Embedding in HTML
+
+```html
+<iframe 
+  src="https://abc123.proxywarp.com" 
+  width="100%" 
+  height="600px"
+  style="border: none;"
+></iframe>
+```
 
 ## 📝 API Reference
 
 ### Main Endpoints
 
-- `GET /` - Home page with converter tool
+- `GET /` - Home page with converter tool and documentation
+- `GET /?url=[URL]` - Direct URL redirection (NEW!)
 - `GET /convert?url=[URL]` - API to convert standard URLs to proxied versions
+- `GET /test-token/[TOKEN]` - Test endpoint to verify token mappings (useful for debugging)
 
-Response format:
+Response format for `/convert`:
 ```json
 {
   "original": "https://example.com",
-  "encodedDomain": "ZXhhbXBsZS5jb20=",
-  "proxy": "https://ZXhhbXBsZS5jb20=.proxywarp.com"
+  "domain": "example.com",
+  "token": "abc123",
+  "proxy": "https://abc123.proxywarp.com"
 }
+```
+
+## 🔍 Project Structure
+
+ProxyWarp uses a modular architecture for better maintainability:
+
+```
+proxywarp/
+├── config.js                   # Configuration settings
+├── server.js                   # Main entry point
+├── lib/                        # Core functionality
+│   ├── proxyHandler.js         # Proxy middleware
+│   ├── tokenStore.js           # Token management
+│   └── utils.js                # Utility functions
+├── routes/                     # Route handlers
+│   ├── index.js                # Route definitions
+│   └── templates/              # HTML templates
+│       └── home.js             # Homepage template
+└── data/                       # Data storage
+    └── tokens.json             # Token database
 ```
 
 ## ⚠️ Limitations
@@ -144,6 +173,25 @@ Response format:
 - Consider the privacy implications when proxying third-party content
 - Not recommended for proxying sensitive data without additional security measures
 
+## 🔧 Debugging
+
+If you're experiencing issues:
+
+1. Enable debug mode:
+   ```
+   DEBUG=true npm start
+   ```
+
+2. Test a specific token:
+   ```
+   GET https://proxywarp.com/test-token/abc123
+   ```
+
+3. In debug mode, you can view all active tokens:
+   ```
+   GET https://proxywarp.com/admin/tokens
+   ```
+
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -156,4 +204,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-🌀 **ProxyWarp** - Warp the web to your domain
+🌀 **ProxyWarp** - Transparent proxy made simple
