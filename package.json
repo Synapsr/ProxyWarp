@@ -1,0 +1,24 @@
+{
+  "name": "proxywarp",
+  "version": "1.0.0",
+  "description": "ProxyWarp: A transparent web proxy that allows embedding any website using Base64-encoded subdomains. Bypasses CORS, X-Frame-Options, and security restrictions while preserving the original content without modifications. Works with all modern web frameworks including Next.js and Nuxt.js. Perfect for comment systems, annotations, and web integrations.",
+  "main": "proxy.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Synapsr/ProxyWarp.git"
+  },
+  "author": "Synapsr",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Synapsr/ProxyWarp/issues"
+  },
+  "homepage": "https://github.com/Synapsr/ProxyWarp#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "http-proxy-middleware": "^3.0.3",
+    "vhost": "^3.0.2"
+  }
+}
