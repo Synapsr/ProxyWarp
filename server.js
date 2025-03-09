@@ -6,6 +6,7 @@
  * @license MIT
  */
 const express = require('express');
+const cors = require('cors');
 const { tokenStore } = require('./lib/tokenStore');
 const { setupProxyHandler } = require('./lib/proxyHandler');
 const { setupRoutes } = require('./routes');
@@ -13,6 +14,7 @@ const config = require('./config');
 
 // Initialize Express app
 const app = express();
+app.use(cors());
 
 // Track active connections
 let connections = new Set();
