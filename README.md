@@ -14,6 +14,8 @@
 - 🔑 **Short Token System**: Uses short, memorable tokens instead of complex encodings
 - 🔀 **Smart Redirection**: Direct URL redirection using the `?url=` parameter
 - 🚀 **Production-Ready**: Optimized for performance and scalability with minimal memory footprint
+- ⏱️ **Robust Error Handling**: Smart timeouts and comprehensive error management
+- 🔍 **Diagnostic Tools**: Built-in tools to troubleshoot connectivity issues
 
 ## 🔮 How It Works
 
@@ -58,6 +60,23 @@ ProxyWarp is easily configured using environment variables:
 | `BASE_DOMAIN` | Your base domain for the proxy | `proxywarp.com` |
 | `DEBUG` | Enable detailed logging | `false` |
 | `DB_FILE` | Path to token database file | `./data/tokens.json` |
+| `TOKEN_LENGTH` | Length of generated tokens | `6` |
+| `CLEANUP_INTERVAL_MS` | Interval for cleaning expired tokens | `86400000` (24h) |
+| `TOKEN_EXPIRATION_MS` | Time until tokens expire | `2592000000` (30d) |
+| `DEFAULT_PROTOCOL` | Default protocol for target sites | `https` |
+| `USER_AGENT` | User agent for proxy requests | Chrome UA string |
+
+### Advanced Configuration
+
+ProxyWarp now includes advanced configuration for timeouts and error handling:
+
+| Configuration Object | Description |
+|----------|-------------|
+| `TIMEOUTS` | Controls various timeout values for different operations |
+| `CACHE` | Settings for the internal caching mechanism |
+| `ERROR_HANDLING` | Configuration for robust error handling |
+
+These advanced settings can be customized in the `config.js` file.
 
 ## 📡 DNS Configuration
 
@@ -139,6 +158,13 @@ Response format for `/convert`:
 }
 ```
 
+### Admin Endpoints (Debug Mode Only)
+
+- `GET /admin/diagnostic` - Retrieves diagnostic information about the server
+- `GET /admin/test-connection?domain=[DOMAIN]` - Tests direct connectivity to a domain
+- `GET /admin/reload-tokens` - Forces a reload of the token database
+- `GET /admin/add-test-token?domain=[DOMAIN]` - Adds a test token for the specified domain
+
 ## 🔍 Project Structure
 
 ProxyWarp uses a modular architecture for better maintainability:
@@ -147,8 +173,11 @@ ProxyWarp uses a modular architecture for better maintainability:
 proxywarp/
 ├── config.js                   # Configuration settings
 ├── server.js                   # Main entry point
+├── diagnostic.js               # Diagnostic tool
 ├── lib/                        # Core functionality
 │   ├── proxyHandler.js         # Proxy middleware
+│   ├── linkRewriter.js         # HTML link rewriting
+│   ├── clientScript.js         # Client-side script for dynamic links
 │   ├── tokenStore.js           # Token management
 │   └── utils.js                # Utility functions
 ├── routes/                     # Route handlers
@@ -165,6 +194,7 @@ proxywarp/
 - WebSockets support requires additional configuration
 - Very complex single-page applications might experience navigation issues
 - Some features like PDF viewing may require special handling
+- Sites with very restrictive security policies might detect and block the proxy
 
 ## 🔐 Security Considerations
 
@@ -173,7 +203,7 @@ proxywarp/
 - Consider the privacy implications when proxying third-party content
 - Not recommended for proxying sensitive data without additional security measures
 
-## 🔧 Debugging
+## 🔧 Debugging & Troubleshooting
 
 If you're experiencing issues:
 
@@ -187,10 +217,27 @@ If you're experiencing issues:
    GET https://proxywarp.com/test-token/abc123
    ```
 
-3. In debug mode, you can view all active tokens:
+3. Run the diagnostic tool to identify connectivity issues:
    ```
-   GET https://proxywarp.com/admin/tokens
+   node diagnostic.js
    ```
+
+4. Check for timeout issues:
+   ```
+   GET https://proxywarp.com/admin/test-connection?domain=example.com
+   ```
+
+5. In debug mode, view diagnostic information:
+   ```
+   GET https://proxywarp.com/admin/diagnostic
+   ```
+
+### Common Issues & Solutions
+
+- **Timeouts**: If you experience timeouts, check the target domain's response time with the diagnostic tool
+- **Connection Errors**: Ensure proper DNS configuration for your base domain and wildcard subdomains
+- **Proxy Not Working**: Verify the token exists and is correctly mapped to the domain
+- **High Memory Usage**: Adjust cache settings in config.js to reduce memory footprint
 
 ## 📜 License
 
